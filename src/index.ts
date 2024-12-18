@@ -215,12 +215,35 @@ async function listMovieByGenre() {
     }
   })
 
+  const moviesList = await prisma.movies.findMany({
+        include: {
+          genres : true
+        }
+      })
+
   moviesByGenre.map(genre => {
     console.log('\t', genre.genre)
     genre.movies.map( movie => {
       console.log('\t', movie.title, '-', movie.year)
+      moviesList.map((listItem) => {
+        if (listItem.id === movie.id) {
+          let otherGenres = ''
+          let show = false;
+          listItem.genres.map((g)=>{
+            if(g.genre !== genreToShow) {
+              otherGenres += g.genre + ' '
+              show = true;
+            }
+          })
+          if(show) console.log('\t -- Other genres of the movie: \n \t\t', otherGenres)
+          }
+      }) 
+      
     })
+
   })
+
+
 }
 
 async function addGenre() {
@@ -245,7 +268,6 @@ async function addGenre() {
     console.log('Genre', genreToAdd, 'has been added to the database.')  
   }
   else console.log(genreToAdd, 'already exist in the database.')
-  
 }
 
 async function main() {
