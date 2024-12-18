@@ -11,25 +11,31 @@ import PromptSync from "prompt-sync";
 // PrismaClient is imported as a singleton to make sure it is only created once.
 // Reference: https://www.prisma.io/docs/concepts/components/prisma-client
 
-import { prisma } from "./lib/prisma";
+import { PrismaClient, Prisma } from "@prisma/client";
+
+const prisma = new PrismaClient;
 
 // Example usage of prisma client
-// try {
-// await prisma.movie.create({
-//   data: {
-//     title: "The Matrix",
-//     year: 1999,
-//   },
-// });
-// } catch (error) {
-//    console.error("An error occurred:", error);
-//    console.log("Please try again.");
-//  }
-//  console.log(`Movie ${title} added successfully!`);
+/* try {
+  await prisma.movies.create({
+
+
+    data: {
+      title: "The Matrix",
+      year: 1999,
+    },
+  });
+} 
+catch (error) {
+    console.error("An error occurred:", error);
+    console.log("Please try again.");
+} */
+//console.log(`Movie ${title} added successfully!`);
 
 const input = PromptSync();
 
 async function addMovie() {
+
   // Expected:
   // 1. Prompt the user for movie title, year.
   // 2. Use Prisma client to create a new movie with the provided details.
@@ -42,6 +48,47 @@ async function addMovie() {
   // 1.b Prompt the user for genre.
   // 2.b If the genre does not exist, create a new genre.
   // 3.b Ask the user if they want to want to add another genre to the movie.
+
+  const title = input('Enter the title of the movie to be added: ');
+  const year = parseInt(input('Enter the release year of the movie: '));
+
+  const createdMovie = await prisma.movies.create ({
+    data: { title, year }, 
+  })
+
+  while(true) {
+    const genreName = input('Enter the movie genre: ');
+    const genreExist = await prisma.genres.findFirst({
+      where: {genre: genreName}
+    })
+    if(!genreExist) {
+      await prisma.genres.create({
+        data: {
+          genre: genreName,
+          movies: {
+            connect: { id: createdMovie.id },
+          }
+        }
+      }) 
+    }
+    else {
+      await prisma.genres.update ({
+        where: { id : genreExist?.id },
+        data: {
+          movies : {
+            connect: { id : createdMovie.id}
+          }
+        }
+      })
+    }
+    const moreGenres = input('Want to add another genre?(y/n) ')
+    if(moreGenres === 'n' || moreGenres === 'N') {
+      break;
+    }
+  }
+
+  console.log('The movie ', title, 'with the releaseyear:', year, 'has been added.')
+
 }
 
 async function updateMovie() {
@@ -51,6 +98,8 @@ async function updateMovie() {
   // 3. Use Prisma client to update the movie with the provided ID with the new details.
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#update
   // 4. Print the updated movie details.
+
+
 }
 
 async function deleteMovie() {
