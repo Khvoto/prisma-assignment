@@ -175,7 +175,22 @@ async function listMovieById() {
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#findunique
   // 3. Include the genre details in the fetched movie.
   // 4. Print the movie details with its genre.
+  const movieById = parseInt(input('Which ID would you like to see? '))
 
+  const movieToShow = await prisma.movies.findFirst({
+    where: { id : movieById },
+    include: { genres : true }
+  })
+
+  if(movieById) {
+    let genreString = ''
+    movieToShow!.genres.map(genre => {
+        genreString += genre.genre + ' '
+      })
+  
+    console.log('\t', movieToShow!.title, '-', movieToShow?.year, ':', genreString)
+  }
+  else console.log('Id does not exist in table')
 }
 
 async function listMovieByGenre() {
