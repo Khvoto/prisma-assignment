@@ -153,6 +153,19 @@ async function listMovies() {
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#findmany
   // 2. Include the genre details in the fetched movies.
   // 3. Print the list of movies with their genres (take 10).
+
+  const movies = await prisma.movies.findMany({
+    include: {
+      genres : true
+    }
+  })
+  movies.map(movie => {
+    let genreString = ''
+    movie.genres.map(genre => {
+      genreString += genre.genre + ' '
+    })
+    console.log('\t', movie.title,'-', movie.year,':', genreString )
+  })
 }
 
 async function listMovieById() {
@@ -162,6 +175,7 @@ async function listMovieById() {
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#findunique
   // 3. Include the genre details in the fetched movie.
   // 4. Print the movie details with its genre.
+
 }
 
 async function listMovieByGenre() {
