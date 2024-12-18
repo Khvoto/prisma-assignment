@@ -99,7 +99,22 @@ async function updateMovie() {
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#update
   // 4. Print the updated movie details.
 
+  const updateId = parseInt(input('Which movie Id do you want to update? '))
+  const updateTitle = input('What do you wish to update the title to? ')
+  const updateReleaseYear = parseInt(input('Which year did the movie release? '))
+  const idExist = await prisma.movies.findFirst ({
+    where: { id : updateId}
+  })
 
+  if (idExist) {
+    await prisma.movies.update ({
+      where: { id : updateId },
+      data : {
+        title: updateTitle,
+        year: updateReleaseYear
+      }
+    })
+  }
 }
 
 async function deleteMovie() {
