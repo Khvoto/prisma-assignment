@@ -111,7 +111,7 @@ async function updateMovie() {
       where: { id : updateId },
       data : {
         title: updateTitle,
-        year: updateReleaseYear
+        year : updateReleaseYear
       }
     })
   }
@@ -123,6 +123,28 @@ async function deleteMovie() {
   // 2. Use Prisma client to delete the movie with the provided ID.
   //    Reference: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#delete
   // 3. Print a message confirming the movie deletion.
+
+  const whatTarget = input('Would you prefer to remove the movie by id or title? (id/title) ')
+  if (whatTarget.toLowerCase() === 'id' ) { 
+    const removeId = parseInt(input('Which id would you like to remove? '))
+    await prisma.movies.delete({
+      where: {id: removeId}
+    })
+  }
+  else if (whatTarget.toLowerCase() === 'title') {
+    const removeTitle : string = input('Which title would you like to remove? ')
+    if( removeTitle.length ) {
+      await prisma.movies.delete ({
+        where: { 
+          title : removeTitle,
+        }
+      })
+    }
+  }
+  else {
+    console.log('That is an incorrect input, please make another choise in the menu: ')
+    return;
+  }
 }
 
 async function listMovies() {
